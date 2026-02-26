@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: Toyow Workflow API
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: ok
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: Token issued }
+  /workflows:
+    get:
+      summary: List workflows
+      responses:
+        "200": { description: Workflows list }
+    post:
+      summary: Create workflow
+      responses:
+        "201": { description: Created }
+  /workflows/{id}:
+    get:
+      summary: Get workflow with versions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Workflow detail }
+    put:
+      summary: Create next workflow version
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete workflow
+      responses:
+        "204": { description: Deleted }
+  /plugins:
+    get:
+      summary: List plugins
+      responses:
+        "200": { description: Plugin list }
+    post:
+      summary: Create plugin version (Admin)
+      responses:
+        "201": { description: Created }
+  /runs:
+    get:
+      summary: List run history
+      responses:
+        "200": { description: Runs list }
+  /runs/{workflowId}/start:
+    post:
+      summary: Start run for workflow
+      parameters:
+        - name: workflowId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "201": { description: Run created }
+  /runs/{runId}:
+    get:
+      summary: Get run and step state
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Run detail }
+  /runs/{runId}/pause:
+    post:
+      summary: Pause run
+      responses:
+        "200": { description: Paused }
+  /runs/{runId}/resume:
+    post:
+      summary: Resume run
+      responses:
+        "200": { description: Running }
+  /runs/{runId}/cancel:
+    post:
+      summary: Cancel run
+      responses:
+        "200": { description: Cancelled }
+  /runs/{runId}/logs:
+    get:
+      summary: Get run logs
+      responses:
+        "200": { description: Logs list }
+  /runs/{runId}/logs/stream:
+    get:
+      summary: Stream logs in NDJSON
+      responses:
+        "200":
+          description: NDJSON stream
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
