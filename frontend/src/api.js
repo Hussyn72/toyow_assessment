@@ -10,8 +10,13 @@ export async function api (path, options = {}, token) {
     }
   })
   if (!res.ok) {
-    const body = await res.text()
-    throw new Error(body || `HTTP ${res.status}`)
+    const raw = await res.text()
+    let message = raw || `HTTP ${res.status}`
+    try {
+      const parsed = JSON.parse(raw)
+      message = parsed.error || parsed.message || message
+    } catch (_) {}
+    throw new Error(message)
   }
   if (res.status === 204) return null
   return res.json()
@@ -23,6 +28,7 @@ export function streamRunLogs (runId, token, onRow) {
     headers: { Authorization: `Bearer ${token}` },
     signal: controller.signal
   }).then(async (res) => {
+    if (!res.ok || !res.body) return
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let buf = ''
@@ -53,4 +59,3 @@ export function connectWs (runId, onLog) {
   })
   return () => ws.close()
 }
-

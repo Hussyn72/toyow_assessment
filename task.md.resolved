@@ -1,0 +1,28 @@
+# Toyow Assessment Project Analysis Checklist
+
+## Documentation Review
+- [x] Read [docs/architecture.md](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/docs/architecture.md)
+- [x] Read [docs/dag-engine.md](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/docs/dag-engine.md)
+- [x] Read [docs/sandbox-design.md](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/docs/sandbox-design.md)
+- [x] Read [docs/tradeoffs.md](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/docs/tradeoffs.md)
+
+## Backend Analysis
+- [x] Understand Server Setup ([server.js](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/backend/src/server.js), [app.js](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/backend/src/app.js))
+- [x] Database Schema and Models ([db/](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/backend/src/services/pluginRunner.js#4-29))
+- [x] API Routes (`routes/`)
+- [x] Services (Core Business Logic) (`services/`)
+- [x] DAG Engine & Queues (`queues/`)
+- [x] Sandbox Execution (`sandbox/`)
+- [x] Middleware & Utilities (`middleware/`, `utils/`)
+
+## Frontend Analysis
+- [x] Application Entry ([main.jsx](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/frontend/src/main.jsx), [App.jsx](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/frontend/src/App.jsx))
+- [x] State Management & Flow ([App.jsx](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/frontend/src/App.jsx))
+- [x] API Integration ([api.js](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/frontend/src/api.js))
+- [x] Styling ([styles.css](file:///c:/Users/MOHAMMAD%20HUSSAIN/Desktop/Toyow_Assessment/frontend/src/styles.css), Tailwind config)
+
+## Synthesis & Reporting
+- [x] Write detailed component breakdown
+- [x] Document data flow and execution path
+- [x] Create interactive walkthrough/report
+

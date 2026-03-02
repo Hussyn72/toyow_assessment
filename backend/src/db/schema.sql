@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS workflows (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_workflows_owner_name_unique
+ON workflows(owner_id, lower(name));
+
 CREATE TABLE IF NOT EXISTS workflow_versions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   workflow_id UUID NOT NULL REFERENCES workflows(id) ON DELETE CASCADE,

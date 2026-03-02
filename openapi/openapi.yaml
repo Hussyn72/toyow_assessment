@@ -33,6 +33,11 @@ paths:
                 password: { type: string }
       responses:
         "200": { description: Token issued }
+  /auth/me:
+    get:
+      summary: Current user profile
+      responses:
+        "200": { description: Current user }
   /workflows:
     get:
       summary: List workflows

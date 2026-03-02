@@ -1,0 +1,103 @@
+# Toyow Workflow Studio - User Manual
+
+Welcome to the **Toyow Workflow Studio**! 
+
+Think of this studio as a factory floor for data. Just like an assembly line takes raw materials, passes them through different stations, and eventually produces a finished product, our Workflow Studio allows you to build an "assembly line" for your digital tasks. 
+
+Instead of moving car parts, you are moving pieces of data (like text or numbers) between different "Stations" (which we call **Steps** or **Nodes**).
+
+---
+
+## What is a Workflow?
+
+A **Workflow** is simply a set of instructions that run automatically in a specific order. 
+For example, a workflow could be:
+1. Wait 5 seconds.
+2. Fetch the current weather from a website.
+3. Check **IF** the text says "Rainy".
+4. If yes, transform the text into a secret code.
+
+You get to design this workflow visually by dragging boxes on a canvas and drawing lines between them to show the order they should run in.
+
+---
+
+## Getting Started: The Dashboard
+
+When you open the application (usually at `http://localhost:5173`), you will see the login screen.
+
+1. **Login:** Click the `Use Admin` text to automatically fill in the test email and password. Click the green **Login** button.
+2. **The Main Screen:** Once logged in, your screen is divided into three main areas:
+   * **Left Panel (Workflows & Execution):** Where you create, save, and start your workflows.
+   * **Middle Area (The Canvas):** The large gray grid. This is where you actually draw and visualize your workflow steps.
+   * **Right Panel (Node Inspector & Logs):** Where you configure the settings for whichever step you clicked on, and at the bottom, where you watch the workflow run in real-time.
+
+---
+
+## Step 1: Create a New Workflow
+
+1. Look at the top of the **Left Panel**.
+2. Find the empty text box that says `Unique workflow name`.
+3. Type a name, like "My First Test".
+4. Click the **Create** button next to it.
+5. Your new workflow will appear in the list right below the button. Click on it to select it safely.
+
+---
+
+## Step 2: Add Steps to the Canvas
+
+Now we need to add instructions (Steps) to the large gray grid.
+
+1. On the **Left Panel** under the word "Execution", click the **Add Step** button. 
+2. A small box will appear on the middle canvas. You can click and drag this box around.
+3. Click on the box to select it. When you select it, the **Right Panel (Node Inspector)** wakes up and lets you change what this box does.
+
+---
+
+## Step 3: Configure Your Step
+
+When a step is selected, look at the **Right Panel**. The most important thing here is the **Drop-down menu** at the top. This menu lets you choose what *type* of job this step will perform.
+
+Here are the 5 tools you can choose from:
+
+### 1. `TEXT_TRANSFORM` (The Secret Coder)
+* **What it does:** It takes a normal word and scrambles it into a secret code.
+* **How to use it:** In the `Config JSON` box, you can set `"shift": 3`. This means move every alphabet letter forward 3 spaces (A becomes D, B becomes E). In the `Payload JSON` box, type the word you want to hide, like `{"text": "Apple"}`.
+
+### 2. `API_PROXY` (The Web Fetcher)
+* **What it does:** It goes out to the internet to get data from another website or app.
+* **How to use it:** In the `Config JSON` box, you put the web address you want to fetch. For example: `{"url": "https://jsonplaceholder.typicode.com/todos/1", "method": "GET"}`.
+
+### 3. `DELAY` (The Pause Button)
+* **What it does:** It literally just waits and does nothing for a certain amount of time. Useful if you need to slow the system down.
+* **How to use it:** In the `Config JSON` box, you write the time in milliseconds. For 2 seconds, you write `{"ms": 2000}`.
+
+### 4. `IF` (The Traffic Cop)
+* **What it does:** It checks if a statement is true or false. It decides which path the workflow should take next.
+* **How to use it:** It looks at the result of a previous step. This is a bit advanced, but you use it to say: "If the previous step succeeded, go down path A. If it failed, go down path B."
+
+### 5. `DATA_AGGREGATOR` (The Gatherer)
+* **What it does:** If you run three different steps at the same time, this step waits at the finish line for all three to arrive, and bundles their answers into one package.
+
+*(After you finish editing the `Config JSON` or `Payload JSON` boxes on the right, always remember to click the **Apply Node JSON** button right below it to save your typing!)*
+
+---
+
+## Step 4: Connect Your Steps
+
+If you add two steps to the canvas, you need to tell the system which one goes first.
+
+1. Hover your mouse over the first box. You will see a tiny dot appear on its right edge.
+2. Click and hold that tiny dot.
+3. Drag your mouse over to the left edge of the second box until it clicks into the target dot.
+4. Let go. You have now drawn an arrow (an edge) connecting them! Step 1 will run, and when it finishes, Step 2 will begin.
+
+---
+
+## Step 5: Save and Run!
+
+1. Once your drawing is done, look at the **Left Panel** again and click **Save Version**. This takes a snapshot of your drawing.
+2. Now, click the green **Start Run** button.
+3. Look rapidly at the bottom right corner of your screen under the **Runs** area!
+4. You will see lines of text printing out in real-time. These are the **Logs**. It will tell you exactly when your step starts working, if it hits any errors, and when it finishes successfully.
+
+*(If you ever change your mind while it's running, you can click the red **Cancel** button, or hit **Pause** to freeze the factory line!)*

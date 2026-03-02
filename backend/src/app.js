@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth')
 const workflowRoutes = require('./routes/workflows')
 const pluginRoutes = require('./routes/plugins')
 const runsRoutes = require('./routes/runs')
+const { errorHandler } = require('./middleware/errorHandler')
 
 function createApp ({ engine, runQueue, logBus }) {
   const app = express()
@@ -20,6 +21,7 @@ function createApp ({ engine, runQueue, logBus }) {
   app.use('/workflows', workflowRoutes)
   app.use('/plugins', pluginRoutes)
   app.use('/runs', runsRoutes({ engine, runQueue, logBus }))
+  app.use(errorHandler)
 
   return app
 }
