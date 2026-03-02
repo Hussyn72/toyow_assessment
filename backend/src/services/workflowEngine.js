@@ -34,72 +34,71 @@ class WorkflowEngine {
     if (this.activeRuns.has(runId)) return
     this.activeRuns.add(runId)
     try {
-    const runRow = await db.query('SELECT * FROM runs WHERE id = $1', [runId])
-    if (!runRow.rows.length) throw new Error('Run not found')
-    const run = runRow.rows[0]
-    if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(run.status)) return
+      const runRow = await db.query('SELECT * FROM runs WHERE id = $1', [runId])
+      if (!runRow.rows.length) throw new Error('Run not found')
+      const run = runRow.rows[0]
+      if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(run.status)) return
 
-    await db.query("UPDATE runs SET status='RUNNING', started_at = COALESCE(started_at, now()) WHERE id = $1", [runId])
+      await db.query("UPDATE runs SET status='RUNNING', started_at = COALESCE(started_at, now()) WHERE id = $1", [runId])
 
-    const workflowVersion = await db.query(
-      `SELECT definition
-       FROM workflow_versions
-       WHERE workflow_id = $1 AND version = $2`,
-      [run.workflow_id, run.workflow_version]
-    )
-    const definition = workflowVersion.rows[0].definition
-    const nodes = definition.nodes || []
-    const edges = definition.edges || []
-    sortedTopologicalGroups(nodes, edges)
+      const workflowVersion = await db.query(
+        `SELECT definition
+         FROM workflow_versions
+         WHERE workflow_id = $1 AND version = $2`,
+        [run.workflow_id, run.workflow_version]
+      )
+      const definition = workflowVersion.rows[0].definition
+      const nodes = definition.nodes || []
+      const edges = definition.edges || []
+      sortedTopologicalGroups(nodes, edges)
 
-    const dependencies = buildDependencyMap(nodes, edges)
-    const nodeMap = new Map(nodes.map(n => [n.id, n]))
-    const state = new Map(nodes.map(n => [n.id, { status: 'PENDING', attempts: 0, output: null }]))
+      const dependencies = buildDependencyMap(nodes, edges)
+      const state = new Map(nodes.map(n => [n.id, { status: 'PENDING', attempts: 0, output: null }]))
 
-    const previous = await db.query('SELECT step_id, status, attempts, output FROM step_states WHERE run_id = $1', [runId])
-    for (const row of previous.rows) {
-      state.set(row.step_id, { status: row.status, attempts: row.attempts, output: row.output })
-    }
-
-    const context = { runInput: run.input, stepOutputs: {}, cache: this.cache }
-    for (const [stepId, st] of state.entries()) {
-      if (st.status === 'COMPLETED') context.stepOutputs[stepId] = st.output
-    }
-
-    while (true) {
-      const control = await db.query('SELECT status FROM runs WHERE id = $1', [runId])
-      const status = control.rows[0].status
-      if (status === 'CANCELLED') return
-      if (status === 'PAUSED') {
-        await new Promise(resolve => setTimeout(resolve, 500))
-        continue
+      const previous = await db.query('SELECT step_id, status, attempts, output FROM step_states WHERE run_id = $1', [runId])
+      for (const row of previous.rows) {
+        state.set(row.step_id, { status: row.status, attempts: row.attempts, output: row.output })
       }
 
-      await this.reconcileSkips(runId, nodes, state, dependencies, context.stepOutputs)
+      const context = { runInput: run.input, stepOutputs: {}, cache: this.cache }
+      for (const [stepId, st] of state.entries()) {
+        if (st.status === 'COMPLETED') context.stepOutputs[stepId] = st.output
+      }
 
-      const ready = nodes
-        .filter(n => state.get(n.id).status === 'PENDING')
-        .filter(n => this.canRunNode(n, state, dependencies, context.stepOutputs))
-        .sort((a, b) => a.id.localeCompare(b.id))
-
-      if (!ready.length) {
-        const failed = [...state.values()].some(s => s.status === 'FAILED')
-        const pending = [...state.values()].some(s => s.status === 'PENDING' || s.status === 'RUNNING')
-        if (!pending) {
-          await db.query(
-            `UPDATE runs
-             SET status = $2, ended_at = now(), output = $3::jsonb
-             WHERE id = $1`,
-            [runId, failed ? 'FAILED' : 'COMPLETED', JSON.stringify(context.stepOutputs)]
-          )
-          return
+      while (true) {
+        const control = await db.query('SELECT status FROM runs WHERE id = $1', [runId])
+        const status = control.rows[0].status
+        if (status === 'CANCELLED') return
+        if (status === 'PAUSED') {
+          await new Promise(resolve => setTimeout(resolve, 500))
+          continue
         }
-        await new Promise(resolve => setTimeout(resolve, 200))
-        continue
-      }
 
-      await Promise.all(ready.map(node => this.executeNode(runId, node, state, context)))
-    }
+        await this.reconcileSkips(runId, nodes, state, dependencies, context.stepOutputs)
+
+        const ready = nodes
+          .filter(n => state.get(n.id).status === 'PENDING')
+          .filter(n => this.canRunNode(n, state, dependencies, context.stepOutputs))
+          .sort((a, b) => a.id.localeCompare(b.id))
+
+        if (!ready.length) {
+          const failed = [...state.values()].some(s => s.status === 'FAILED')
+          const pending = [...state.values()].some(s => s.status === 'PENDING' || s.status === 'RUNNING')
+          if (!pending) {
+            await db.query(
+              `UPDATE runs
+               SET status = $2, ended_at = now(), output = $3::jsonb
+               WHERE id = $1`,
+              [runId, failed ? 'FAILED' : 'COMPLETED', JSON.stringify(context.stepOutputs)]
+            )
+            return
+          }
+          await new Promise(resolve => setTimeout(resolve, 200))
+          continue
+        }
+
+        await Promise.all(ready.map(node => this.executeNode(runId, node, state, context)))
+      }
     } finally {
       this.activeRuns.delete(runId)
     }
