@@ -1,6 +1,7 @@
 # Toyow Assessment - Distributed Workflow Builder (PERN, JavaScript)
 
 This repository contains a mini SaaS workflow platform with:
+
 - DAG-based workflow execution
 - Sandboxed plugin runtime (subprocess isolation)
 - Real-time logs over WebSocket
@@ -20,8 +21,8 @@ This repository contains a mini SaaS workflow platform with:
 
 ## Quick Start
 
-1. Copy env:
-   - `backend/.env.example` to `backend/.env`
+1. Set env file:
+   - `backend/.env`
 2. Run with Docker:
    - `docker compose up --build`
 3. Apply database schema:
@@ -30,12 +31,15 @@ This repository contains a mini SaaS workflow platform with:
    - `docker compose exec backend npm run db:seed`
 
 Frontend:
+
 - http://localhost:5173
 
 Backend:
+
 - http://localhost:4000
 
 Default users after seeding:
+
 - Admin: `admin@toyow.local` / `Admin123!`
 - User: `user@toyow.local` / `User123!`
 
@@ -50,9 +54,3 @@ Default users after seeding:
 - `POST /runs/:runId/cancel`
 - `GET /runs/:runId/logs/stream` (NDJSON)
 - `WS /ws` (live run logs)
-
-## Notes
-
-- Implementation is JavaScript-only (`.js`), no TypeScript.
-- See `docs/` for architecture, DAG engine design, sandbox design, and trade-offs.
-- See `openapi/openapi.yaml` for complete API spec.
